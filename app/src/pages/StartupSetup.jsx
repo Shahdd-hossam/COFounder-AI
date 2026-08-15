@@ -80,7 +80,7 @@ function StartupSetup() {
           <label>Target market<input name="target_market" value={form.target_market} onChange={updateField} required /></label>
           <label>Business model<input name="business_model" value={form.business_model} onChange={updateField} required /></label>
           <label>Language<input name="language" value={form.language} onChange={updateField} required /></label>
-          <label>Budget<input type="number" min="0.01" name="budget" value={form.budget} onChange={updateField} required /></label>
+          <label>Budget<input type="number" min="0.01" step="0.01" name="budget" value={form.budget} onChange={updateField} required /></label>
           <label>Currency<input name="currency" value={form.currency} onChange={updateField} required /></label>
           <label>Time horizon (days)<input type="number" min="1" name="time_horizon_days" value={form.time_horizon_days} onChange={updateField} required /></label>
         </div>

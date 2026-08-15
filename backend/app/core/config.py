@@ -18,6 +18,10 @@ class Settings(BaseSettings):
     demo_owner_id: str = Field(default="demo-owner", validation_alias="DEMO_OWNER_ID")
     mcp_enabled: bool = Field(default=False, validation_alias="MCP_ENABLED")
     gmail_enabled: bool = Field(default=False, validation_alias="GMAIL_ENABLED")
+    mcp_server_name: str = Field(default="Tavily", validation_alias="MCP_SERVER_NAME")
+    mcp_research_tool: str = Field(default="tavily_research", validation_alias="MCP_RESEARCH_TOOL")
+    mcp_cli_path: str = Field(default="manus-mcp-cli", validation_alias="MCP_CLI_PATH")
+    mcp_timeout_seconds: int = Field(default=90, validation_alias="MCP_TIMEOUT_SECONDS")
 
     model_config = SettingsConfigDict(
         env_file=".env",

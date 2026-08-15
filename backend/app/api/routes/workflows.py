@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session
 from app.api.deps import database_session
 from app.core.config import get_settings
 from app.db.repositories import create_workflow_run
-from app.db.session import get_session_factory
 from app.db.models import WorkflowRun
 from app.services.startup_service import StartupNotFoundError, startup_service
 from app.services.workflow_service import run_ad_action_plan, run_marketing_plan, run_research, run_swot
@@ -40,7 +39,8 @@ async def execute_workflow(startup_id: int, feature: str, fn, db: Session):
     db.flush()
     try:
         result = await fn(startup)
-        mark_run(run, "partial" if result.get("status") == "fallback" else "ready", result)
+        tool_status = result.get("workflow_status", result.get("status"))
+        mark_run(run, "partial" if tool_status in {"fallback", "failed"} else "ready", result)
     except Exception as exc:
         mark_run(run, "failed", error=exc)
     db.flush()

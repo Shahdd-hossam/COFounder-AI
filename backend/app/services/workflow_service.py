@@ -2,6 +2,7 @@ from typing import Any
 
 from app.db.models import Startup
 from app.integrations.mcp_gateway import mcp_gateway
+from app.services.deep_search_service import deep_search_service
 
 
 def startup_context(startup: Startup) -> dict[str, Any]:
@@ -71,8 +72,7 @@ def ads_fallback(startup: Startup, marketing_plan: dict[str, Any] | None = None)
 
 
 async def run_research(startup: Startup) -> dict[str, Any]:
-    result = await mcp_gateway.run("market_research", startup_context(startup), research_fallback(startup))
-    return result.as_dict()
+    return await deep_search_service.run(startup)
 
 
 async def run_swot(startup: Startup, research: dict[str, Any] | None = None) -> dict[str, Any]:

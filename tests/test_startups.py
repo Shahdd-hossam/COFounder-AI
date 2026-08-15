@@ -63,3 +63,28 @@ def test_health_and_readiness() -> None:
     client = TestClient(app)
     assert client.get("/health").json() == {"status": "ok"}
     assert client.get("/ready").json()["database"] == "connected"
+
+
+def test_deep_search_without_connector_returns_unknown_not_numbers() -> None:
+    client = TestClient(app)
+    payload = {
+        "name": "Evidence Safe Startup",
+        "description": "A startup used to verify evidence-safe research workflows.",
+        "target_customer": "Early adopters",
+        "target_market": "Test market",
+        "business_model": "Subscription",
+        "goal": "Validate demand",
+        "budget": 1000,
+        "currency": "USD",
+        "time_horizon_days": 14,
+        "language": "English",
+    }
+    startup = client.post("/api/v1/startups", json=payload).json()
+
+    response = client.post(f"/api/v1/startups/{startup['id']}/market-research/runs")
+    assert response.status_code == 200
+    run = response.json()
+    assert run["status"] == "partial"
+    assert run["result_json"]["numeric_claims"] == []
+    assert run["result_json"]["market_overview"].startswith("Unknown:")
+    assert run["result_json"]["data_quality"]["confidence"] == "low"

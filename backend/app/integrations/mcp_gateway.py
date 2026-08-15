@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Awaitable, Callable
 
+from app.services.evidence_cleaner import clean_research_payload
+
 
 @dataclass(frozen=True)
 class ToolResult:
@@ -47,37 +49,40 @@ class MCPGateway:
 
     async def run(self, feature: str, payload: dict[str, Any], fallback: dict[str, Any]) -> ToolResult:
         handler = self._tools.get(feature)
+        safe_fallback = clean_research_payload(fallback) if feature == "market_research" else fallback
         if handler is None:
             return ToolResult(
                 feature=feature,
                 status="fallback",
                 tool=None,
-                result=fallback,
-                evidence=[],
+                result=safe_fallback,
+                evidence=safe_fallback.get("sources", []) if feature == "market_research" else [],
                 assumptions=["No approved MCP tool is configured for this feature."],
-                missing_fields=[],
+                missing_fields=safe_fallback.get("data_quality", {}).get("missing_fields", []) if feature == "market_research" else [],
             )
 
         try:
             response = await handler(payload)
+            safe_response = clean_research_payload(response) if feature == "market_research" else response
+            quality = safe_response.get("data_quality", {}) if feature == "market_research" else {}
             return ToolResult(
                 feature=feature,
                 status="success",
                 tool=feature,
-                result=response,
-                evidence=response.get("evidence", []),
-                assumptions=response.get("assumptions", []),
-                missing_fields=response.get("missing_fields", []),
+                result=safe_response,
+                evidence=safe_response.get("sources", response.get("evidence", [])) if feature == "market_research" else response.get("evidence", []),
+                assumptions=quality.get("assumptions", response.get("assumptions", [])),
+                missing_fields=quality.get("missing_fields", response.get("missing_fields", [])),
             )
         except Exception as exc:  # provider-specific failures become data
             return ToolResult(
                 feature=feature,
                 status="failed",
                 tool=feature,
-                result=fallback,
+                result=safe_fallback,
                 evidence=[],
                 assumptions=["The configured tool failed; fallback output is not verified research."],
-                missing_fields=[],
+                missing_fields=safe_fallback.get("data_quality", {}).get("missing_fields", []) if feature == "market_research" else [],
                 error=str(exc),
             )
 

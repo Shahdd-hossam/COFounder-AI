@@ -1,18 +1,30 @@
-from app.schemas.research import Competitor, MarketResearchRequest, MarketResearchResponse
+from app.schemas.research import MarketResearchRequest, MarketResearchResponse
 
 
 class ResearchService:
     def generate_research(self, payload: MarketResearchRequest) -> MarketResearchResponse:
         return MarketResearchResponse(
-            trends=[f"Research tool not connected for {payload.industry} in {payload.region}."],
+            market_overview="Unknown: an approved Deep Search connector is required before market size or trend claims can be returned.",
+            trends=[],
             competitors=[],
-            opportunities=[f"Collect verified evidence for {payload.audience_segment}."],
+            opportunities=[],
+            customer_pain_points=[],
             sources=[],
             numeric_claims=[],
             data_quality={
+                "coverage": 0,
                 "confidence": "low",
-                "missing_fields": ["verified_sources", "market_estimates"],
-                "assumptions": ["This compatibility endpoint does not claim external research."],
+                "missing_fields": [
+                    "verified_sources",
+                    "market_estimates",
+                    "competitor_evidence",
+                    "customer_evidence",
+                ],
+                "conflicts": [],
+                "assumptions": [
+                    "No external research tool is configured for this compatibility endpoint.",
+                    f"Requested scope: {payload.industry} in {payload.region} for {payload.audience_segment}.",
+                ],
             },
         )
 

@@ -41,6 +41,10 @@ export function getWorkflowRun(runId) {
   return request(`/workflows/${runId}`);
 }
 
+export function startMarketResearchRun(startupId) {
+  return request(`/startups/${startupId}/market-research/runs`, { method: "POST" });
+}
+
 export function createMarketingPlan(payload) {
   return request("/marketing-plan", { method: "POST", body: JSON.stringify(payload) });
 }
