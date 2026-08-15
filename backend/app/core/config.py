@@ -22,6 +22,11 @@ class Settings(BaseSettings):
     mcp_research_tool: str = Field(default="tavily_research", validation_alias="MCP_RESEARCH_TOOL")
     mcp_cli_path: str = Field(default="manus-mcp-cli", validation_alias="MCP_CLI_PATH")
     mcp_timeout_seconds: int = Field(default=90, validation_alias="MCP_TIMEOUT_SECONDS")
+    manus_enabled: bool = Field(default=False, validation_alias="MANUS_ENABLED")
+    manus_api_key: str | None = Field(default=None, validation_alias="MANUS_API_KEY")
+    manus_api_base_url: str = Field(default="https://api.manus.ai", validation_alias="MANUS_API_BASE_URL")
+    manus_timeout_seconds: int = Field(default=180, validation_alias="MANUS_TIMEOUT_SECONDS")
+    manus_poll_interval_seconds: int = Field(default=4, validation_alias="MANUS_POLL_INTERVAL_SECONDS")
 
     model_config = SettingsConfigDict(
         env_file=".env",

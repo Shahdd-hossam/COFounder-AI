@@ -23,9 +23,21 @@ Market overviews, trends, competitors, customer insights, opportunities, and thr
 
 The cleaner preserves `missing_fields`, `conflicts`, `assumptions`, and `cleaning_issues` in `result_json.data_quality`. This makes the absence of evidence visible instead of hiding it behind a confident-sounding summary.
 
+## Research query and fallback behavior
+
+Research is driven by the startup description, target customer, target market, business model, language, and goal. The product name is context only and is never required for a search to run. This allows a startup such as `growza` to be researched from its actual description rather than from a name lookup.
+
+The runtime fallback order is:
+
+1. The approved Tavily/OpenRouter MCP research path.
+2. The Manus API structured-output task path, when `MANUS_ENABLED=true` and `MANUS_API_KEY` is configured server-side.
+3. An evidence-safe partial result with explicit unknowns and failure metadata.
+
+A fallback result is never treated as verified research. It must retain the connector errors, missing fields, and fallback chain in `result_json.data_quality`.
+
 ## MCP behavior
 
-The repository contains a feature-neutral MCP gateway and a Tavily result normalizer. The Tavily connector discovered in the current environment is disabled, so the default runtime intentionally returns a partial workflow with unknown values. Enable and authenticate the approved connector in the project runtime before registering a real result handler. Direct MCP calls must remain in the approved connector/runtime layer; the web process does not shell out to the MCP CLI.
+The repository contains a feature-neutral MCP gateway and a Tavily result normalizer. The Tavily connector discovered in the current environment returned HTTP 403 during the live check, so the default runtime intentionally falls through to the Manus API path when configured. Enable and authenticate the approved connector in the project runtime before registering a real result handler. Direct MCP calls must remain in the approved connector/runtime layer; the web process does not shell out to the MCP CLI.
 
 ## Review checklist
 

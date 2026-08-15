@@ -1,22 +1,8 @@
-import json
-from pathlib import Path
 from typing import Any
 
 from app.db.models import Startup
-from app.integrations.mcp_gateway import mcp_gateway
 from app.services.deep_search_service import deep_search_service
 from app.services.feature_service import action_plan, competitor_analysis, marketing_plan, swot_analysis
-
-SNAPSHOT_PATH = Path(__file__).resolve().parents[1] / "data" / "careerlaunch_egypt_research.json"
-
-
-def verified_research_for(startup: Startup) -> dict[str, Any]:
-    if startup.name.strip().lower() != "careerlaunch egypt":
-        return research_fallback(startup)
-    try:
-        return json.loads(SNAPSHOT_PATH.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return research_fallback(startup)
 
 
 def startup_context(startup: Startup) -> dict[str, Any]:
@@ -35,71 +21,7 @@ def startup_context(startup: Startup) -> dict[str, Any]:
     }
 
 
-def research_fallback(startup: Startup) -> dict[str, Any]:
-    return {
-        "market_overview": "Insufficient verified research: connect an approved Deep Search tool.",
-        "target_customer_insights": [],
-        "competitors": [],
-        "market_trends": [],
-        "customer_pain_points": [],
-        "opportunities": [],
-        "threats": [],
-        "numeric_claims": [],
-        "sources": [],
-    }
-
-
-def swot_fallback(startup: Startup, research: dict[str, Any] | None = None) -> dict[str, Any]:
-    return {
-        "strengths": [{"text": f"Clear focus on {startup.target_customer}.", "basis": "startup_context"}],
-        "weaknesses": [{"text": "Verified market evidence is not yet connected.", "basis": "missing_research"}],
-        "opportunities": [{"text": f"Test demand in {startup.target_market}.", "basis": "startup_context"}],
-        "threats": [{"text": "Competitor and channel pressure remain unverified.", "basis": "missing_research"}],
-    }
-
-
-def marketing_fallback(startup: Startup, research: dict[str, Any] | None = None, swot: dict[str, Any] | None = None) -> dict[str, Any]:
-    return {
-        "objective": {
-            "title": startup.goal,
-            "description": "Generate a validated plan after research and strategy tools are connected.",
-            "target": startup.goal,
-            "deadline": f"{startup.time_horizon_days} days",
-        },
-        "personas": [{"name": startup.target_customer, "description": "Context-derived persona; validate with research.", "pain_points": [], "motivations": [], "preferred_channels": []}],
-        "channels": [],
-        "campaigns": [],
-        "content_calendar": [],
-        "budget_allocation": [],
-        "kpis": [],
-        "action_items": [],
-        "data_quality": {"confidence": "low", "assumptions": ["Marketing MCP/LLM is not configured."]},
-    }
-
-
-def ads_fallback(startup: Startup, marketing_plan: dict[str, Any] | None = None) -> dict[str, Any]:
-    return {
-        "campaigns": [],
-        "tasks": [{"stable_key": "connect_ads_tool", "task": "Connect an approved advertising planning tool before creating execution-ready ad recommendations.", "status": "todo"}],
-        "execution_enabled": False,
-    }
-
-
 async def run_research(startup: Startup) -> dict[str, Any]:
-    snapshot = verified_research_for(startup)
-    if snapshot.get("snapshot_id"):
-        snapshot["workflow_status"] = "success"
-        snapshot["tool"] = "OpenRouter web-enabled synthesis snapshot"
-        snapshot["data_quality"] = {
-            "coverage": 0.8,
-            "confidence": "medium",
-            "missing_fields": snapshot.get("missing_fields", []),
-            "conflicts": snapshot.get("conflicts", []),
-            "assumptions": snapshot.get("assumptions", []),
-            "cleaning_issues": [],
-            "unknown_numeric_claims": sum(1 for claim in snapshot.get("numeric_claims", []) if claim.get("number_type") == "unknown"),
-        }
-        return snapshot
     return await deep_search_service.run(startup)
 
 
@@ -112,18 +34,18 @@ async def run_competitor_analysis(startup: Startup) -> dict[str, Any]:
 
 
 async def run_swot(startup: Startup, research: dict[str, Any] | None = None) -> dict[str, Any]:
-    verified = research or verified_research_for(startup)
+    verified = research or await run_research(startup)
     result = swot_analysis(startup, verified)
-    result["workflow_status"] = "success" if verified.get("snapshot_id") else "fallback"
+    result["workflow_status"] = verified.get("workflow_status", "fallback")
     result["research_snapshot_id"] = verified.get("snapshot_id")
     return result
 
 
 async def run_marketing_plan(startup: Startup, research: dict[str, Any] | None = None, swot: dict[str, Any] | None = None) -> dict[str, Any]:
-    verified = research or verified_research_for(startup)
+    verified = research or await run_research(startup)
     strategy = swot or swot_analysis(startup, verified)
     result = marketing_plan(startup, verified, strategy)
-    result["workflow_status"] = "success" if verified.get("snapshot_id") else "fallback"
+    result["workflow_status"] = verified.get("workflow_status", "fallback")
     result["research_snapshot_id"] = verified.get("snapshot_id")
     return result
 
@@ -131,5 +53,6 @@ async def run_marketing_plan(startup: Startup, research: dict[str, Any] | None =
 async def run_ad_action_plan(startup: Startup, marketing_plan: dict[str, Any] | None = None) -> dict[str, Any]:
     plan = marketing_plan or await run_marketing_plan(startup)
     result = action_plan(startup, plan)
-    result["workflow_status"] = "success" if plan.get("research_snapshot_id") else "fallback"
+    result["workflow_status"] = plan.get("workflow_status", "fallback")
+    result["research_snapshot_id"] = plan.get("research_snapshot_id")
     return result

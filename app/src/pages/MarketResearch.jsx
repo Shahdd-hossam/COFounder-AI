@@ -94,14 +94,15 @@ function MarketResearch() {
               <section className="quality-grid">
                 <article className="panel quality-card"><span>Workflow status</span><strong>{run.status}</strong></article>
                 <article className="panel quality-card"><span>Evidence confidence</span><strong><QualityBadge value={quality.confidence} /></strong></article>
-                <article className="panel quality-card"><span>Source coverage</span><strong>{Math.round((quality.coverage || 0) * 100)}%</strong></article>
-                <article className="panel quality-card"><span>Unknown numeric claims</span><strong>{quality.unknown_numeric_claims || 0}</strong></article>
+                <article className="panel quality-card"><span>Source coverage</span><strong>{sources.length ? `${Math.round((quality.coverage || 0) * 100)}%` : "No verified sources"}</strong></article>
+                <article className="panel quality-card"><span>Numeric claims returned</span><strong>{numericClaims.length ? `${numericClaims.length} (${quality.unknown_numeric_claims || 0} unknown)` : "None returned"}</strong></article>
               </section>
 
               <section className="panel research-section">
                 <p className="eyebrow">Market overview</p>
                 <h2>{result.market_overview || "Unknown"}</h2>
-                <p className="muted">Tool: {result.tool || "not configured"}. All claims below retain their evidence links and cleaning metadata.</p>
+                <p className="muted">Tool: {result.tool || "not configured"}. Fallback path: {(quality.fallback_chain || []).join(" → ") || "not configured"}. All claims below retain their evidence links and cleaning metadata.</p>
+                {quality.fallback_errors?.length ? <p className="warning">Research connectors were unavailable. No unsupported result was substituted.</p> : null}
               </section>
 
               <section className="panel research-section">
