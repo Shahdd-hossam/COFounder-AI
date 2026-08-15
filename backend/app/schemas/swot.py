@@ -12,3 +12,4 @@ class SWOTResponse(BaseModel):
     weaknesses: list[str]
     opportunities: list[str]
     threats: list[str]
+    provenance: list[dict] = Field(default_factory=list)

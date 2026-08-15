@@ -1,13 +1,13 @@
-import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
-import App from './App';
+import { render, screen } from "@testing-library/react";
+import { BrowserRouter } from "react-router-dom";
+import App from "./App";
 
-test('renders marketing ai home title', () => {
+test("renders the CoFounder AI overview", () => {
   render(
     <BrowserRouter>
       <App />
-    </BrowserRouter>
+    </BrowserRouter>,
   );
-  const heading = screen.getByText(/Turn Ideas Into Launch-Ready Marketing Execution/i);
-  expect(heading).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: "CoFounder AI" })).toBeTruthy();
+  expect(screen.getByText("Create startup")).toBeTruthy();
 });

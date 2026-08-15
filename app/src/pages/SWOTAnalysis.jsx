@@ -1,13 +1,16 @@
+import { useParams } from "react-router-dom";
 import PageShell from "../components/common/PageShell";
-import SWOTForm from "../components/swot/SWOTForm";
 
 function SWOTAnalysis() {
+  const { startupId } = useParams();
   return (
-    <PageShell
-      title="SWOT Analysis Builder"
-      subtitle="Map strategic strengths and risks to improve execution confidence."
-    >
-      <SWOTForm />
+    <PageShell title="SWOT Analysis" subtitle="Traceable strengths, weaknesses, opportunities, and threats from startup context and research.">
+      <section className="panel">
+        <p className="eyebrow">Phase 4 workspace</p>
+        <h2>SWOT workspace</h2>
+        <p className="muted">{startupId ? `Startup #${startupId} is active.` : "Create or open a startup to continue."}</p>
+        <p className="empty-state">SWOT generation will use the shared context and optional cleaned research without blocking on research completion.</p>
+      </section>
     </PageShell>
   );
 }

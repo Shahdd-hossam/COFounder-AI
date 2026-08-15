@@ -17,3 +17,6 @@ class MarketResearchResponse(BaseModel):
     trends: list[str]
     competitors: list[Competitor]
     opportunities: list[str]
+    sources: list[dict] = Field(default_factory=list)
+    numeric_claims: list[dict] = Field(default_factory=list)
+    data_quality: dict = Field(default_factory=dict)

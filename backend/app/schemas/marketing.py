@@ -13,3 +13,4 @@ class MarketingPlanResponse(BaseModel):
     channels: list[str]
     budget_breakdown: dict[str, str]
     timeline: list[str]
+    data_quality: dict = Field(default_factory=dict)
