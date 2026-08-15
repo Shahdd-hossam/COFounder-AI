@@ -30,6 +30,7 @@ function MarketResearch() {
   const quality = result?.data_quality || {};
   const sources = result?.sources || [];
   const numericClaims = result?.numeric_claims || [];
+  const estimatedFindings = result?.estimated_findings || [];
   const unknownClaims = useMemo(
     () => numericClaims.filter((claim) => claim.number_type === "unknown"),
     [numericClaims],
@@ -100,7 +101,7 @@ function MarketResearch() {
 
               <section className="panel research-section">
                 <p className="eyebrow">Market overview</p>
-                <h2>{result.market_overview || "Unknown"}</h2>
+                <div className="row-title"><h2>{result.market_overview || "Unknown"}</h2><QualityBadge value={result.market_overview_status || (result.market_overview?.startsWith("Preliminary") ? "modeled_estimate" : "source_backed")} /></div>
                 <p className="muted">Tool: {result.tool || "not configured"}. Fallback path: {(quality.fallback_chain || []).join(" → ") || "not configured"}. All claims below retain their evidence links and cleaning metadata.</p>
                 {quality.fallback_errors?.length ? <p className="warning">Research connectors were unavailable. No unsupported result was substituted.</p> : null}
               </section>
@@ -116,10 +117,15 @@ function MarketResearch() {
                     </article>
                   ))}
                 </div>
-              </section>
-
+                            </section>
               <section className="panel research-section">
-                <div className="section-heading"><h2>Numeric claims</h2><span>Never inferred silently</span></div>
+                <div className="section-heading"><h2>Model-assisted planning estimates</h2><span>{estimatedFindings.length} estimate(s)</span></div>
+                <p className="warning">These values are planning hypotheses generated from startup context and explicit heuristics. They are not verified market facts.</p>
+                {(estimatedFindings || []).map((item, index) => <article className="insight-row" key={`estimate-${index}`}><p>{item.text}</p><span>{item.number_type} · {item.confidence} confidence · {item.methodology}</span><small>{item.validation_plan}</small></article>)}
+              </section>
+              <section className="panel research-section">
+                <div className="section-heading"><h2>Numeric claims</h2><span>Verified and modeled values are labeled</span></div>
+
                 {numericClaims.length === 0 ? <p className="empty-state">No numeric claim was returned. This is safer than presenting an unsupported estimate.</p> : null}
                 {numericClaims.map((claim, index) => (
                   <article className="claim-row" key={`${claim.label}-${index}`}>

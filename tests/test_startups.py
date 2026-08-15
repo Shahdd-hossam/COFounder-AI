@@ -65,7 +65,7 @@ def test_health_and_readiness() -> None:
     assert client.get("/ready").json()["database"] == "connected"
 
 
-def test_deep_search_without_connector_returns_unknown_not_numbers() -> None:
+def test_deep_search_without_connector_returns_labeled_estimates_not_facts() -> None:
     client = TestClient(app)
     payload = {
         "name": "Evidence Safe Startup",
@@ -85,6 +85,7 @@ def test_deep_search_without_connector_returns_unknown_not_numbers() -> None:
     assert response.status_code == 200
     run = response.json()
     assert run["status"] == "partial"
-    assert run["result_json"]["numeric_claims"] == []
-    assert run["result_json"]["market_overview"].startswith("Unknown:")
-    assert run["result_json"]["data_quality"]["confidence"] == "low"
+    assert run["result_json"]["numeric_claims"]
+    assert all(claim["number_type"] == "modeled_estimate" for claim in run["result_json"]["numeric_claims"])
+    assert run["result_json"]["market_overview_status"] == "modeled_estimate"
+    assert run["result_json"]["data_quality"]["estimate_confidence"] == "low"

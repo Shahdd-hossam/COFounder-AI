@@ -25,14 +25,17 @@ RESEARCH_SCHEMA: dict[str, Any] = {
         "threats": {"type": "array", "items": {"$ref": "#/$defs/finding"}},
         "sources": {"type": "array", "items": {"$ref": "#/$defs/source"}},
         "numeric_claims": {"type": "array", "items": {"$ref": "#/$defs/claim"}},
+        "estimated_findings": {"type": "array", "items": {"$ref": "#/$defs/estimate_finding"}},
+        "estimated_numeric_claims": {"type": "array", "items": {"$ref": "#/$defs/claim"}},
         "missing_fields": {"type": "array", "items": {"type": "string"}},
         "conflicts": {"type": "array", "items": {"type": "string"}},
         "assumptions": {"type": "array", "items": {"type": "string"}},
     },
     "required": [
         "market_overview", "market_overview_source_ids", "target_customer_insights", "market_trends",
-        "customer_pain_points", "competitors", "opportunities", "threats", "sources", "numeric_claims",
+        "customer_pain_points", "competitors", "opportunities", "threats",         "sources", "numeric_claims", "estimated_findings", "estimated_numeric_claims",
         "missing_fields", "conflicts", "assumptions",
+
     ],
     "additionalProperties": False,
     "$defs": {
@@ -69,6 +72,20 @@ RESEARCH_SCHEMA: dict[str, Any] = {
                 "quality": {"type": "string", "enum": ["low", "medium", "high"]},
             },
             "required": ["id", "title", "publisher", "url", "retrieved_on", "quality"],
+            "additionalProperties": False,
+        },
+        "estimate_finding": {
+            "type": "object",
+            "properties": {
+                "text": {"type": "string"},
+                "category": {"type": "string"},
+                "number_type": {"type": "string", "enum": ["modeled_estimate", "unknown"]},
+                "confidence": {"type": "string", "enum": ["low", "medium", "high"]},
+                "methodology": {"type": "string"},
+                "assumptions": {"type": "array", "items": {"type": "string"}},
+                "validation_plan": {"type": "string"},
+            },
+            "required": ["text", "category", "number_type", "confidence", "methodology", "assumptions", "validation_plan"],
             "additionalProperties": False,
         },
         "claim": {
@@ -114,7 +131,9 @@ class ManusResearchFallback:
             "Find market context, customer pain points, direct and indirect competitors, trends, opportunities, and threats. "
             "Every factual finding must include source_ids linked to a valid URL. Every numeric claim must be explicitly reported "
             "by a source or visibly derived from cited sources. Never invent TAM, SAM, SOM, prices, CAC, conversion rates, users, "
-            "growth rates, or competitor counts. If evidence is missing, return an empty array or an explicit unknown and add a missing_fields entry.\n\n"
+            "growth rates, or competitor counts. If evidence is missing, return an empty array or an explicit unknown and add a missing_fields entry. "
+            "Also provide planning estimates for fields that need a decision, such as interview targets, pilot cohort size, budget allocation, or experiment targets. "
+            "Every estimate must use number_type modeled_estimate, include methodology, assumptions, confidence, and a validation_plan, and must never be described as observed market data.\n\n"
             f"Startup context: {startup}"
         )
 

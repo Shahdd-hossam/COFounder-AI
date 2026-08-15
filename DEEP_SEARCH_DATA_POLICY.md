@@ -23,6 +23,10 @@ Market overviews, trends, competitors, customer insights, opportunities, and thr
 
 The cleaner preserves `missing_fields`, `conflicts`, `assumptions`, and `cleaning_issues` in `result_json.data_quality`. This makes the absence of evidence visible instead of hiding it behind a confident-sounding summary.
 
+When a product decision requires a value that cannot be found directly, the system may generate a **modeled estimate** through the Manus API structured-output path. Modeled estimates must include a methodology, assumptions, confidence, and validation plan. They may populate planning fields such as interview targets, pilot cohort size, experiment targets, and budget allocations, but they must not be presented as market statistics, observed demand, verified pricing, CAC, conversion rates, TAM, SAM, SOM, or employment outcomes.
+
+If the Manus API is unavailable, the system uses a deterministic planning heuristic only as a secondary fallback and labels it `rule_based_fallback`. This keeps the app useful without pretending that a heuristic is external evidence.
+
 ## Research query and fallback behavior
 
 Research is driven by the startup description, target customer, target market, business model, language, and goal. The product name is context only and is never required for a search to run. This allows a startup such as `growza` to be researched from its actual description rather than from a name lookup.

@@ -36,6 +36,12 @@ def competitor_analysis(startup: Startup, research: dict[str, Any]) -> dict[str,
                 "evidence_status": "source_backed" if source_ids else "unknown",
             }
         )
+    if not competitors:
+        competitors = [
+            {"name": "University career services", "classification": "indirect", "strength": "Institutional trust and access to students are plausible competitive advantages.", "weakness": "Capacity, coverage, and quality are not verified for this startup.", "pricing": "Usually free or subsidized to eligible students; verify locally.", "source_ids": [], "evidence_status": "modeled_estimate"},
+            {"name": "Local job boards and recruitment platforms", "classification": "indirect", "strength": "They may have employer distribution and job inventory.", "weakness": "A personalized coaching workflow is not assumed and must be verified.", "pricing": "Unknown; verify current public and employer pricing.", "source_ids": [], "evidence_status": "modeled_estimate"},
+            {"name": "General-purpose AI assistants", "classification": "indirect", "strength": "Low-friction access and broad conversational capability.", "weakness": "Local career evidence, workflow continuity, and accountability are not assumed.", "pricing": "Unknown for the relevant user segment.", "source_ids": [], "evidence_status": "modeled_estimate"},
+        ]
     return {
         "title": f"Competitor analysis for {startup.name}",
         "scope": {"market": startup.target_market, "customer": startup.target_customer},
@@ -64,6 +70,7 @@ def swot_analysis(startup: Startup, research: dict[str, Any]) -> dict[str, Any]:
     has_snapshot = bool(research.get("snapshot_id"))
     opportunities = _insight_items(research, "opportunities")
     threats = _insight_items(research, "threats")
+    estimates = _insight_items(research, "estimated_findings")
     return {
         "strengths": [
             {"text": f"The product is explicitly designed for {startup.target_customer} in {startup.target_market}.", "basis": "startup_context", "source_ids": [], "evidence_status": "context"},
@@ -76,11 +83,11 @@ def swot_analysis(startup: Startup, research: dict[str, Any]) -> dict[str, Any]:
         "opportunities": [
             {"text": item.get("text"), "basis": "research", "source_ids": _source_ids(item) if has_snapshot else [], "evidence_status": "source_backed" if has_snapshot else "unknown"}
             for item in opportunities
-        ] or [{"text": "Unknown: no source-backed opportunity was returned.", "basis": "missing_data", "source_ids": [], "evidence_status": "unknown"}],
+        ] or [{"text": item.get("text"), "basis": "planning_estimate", "source_ids": [], "evidence_status": "modeled_estimate"} for item in estimates if item.get("category") in {"pilot_design", "customer_validation"}] or [{"text": "Modeled planning opportunity: validate demand before scaling.", "basis": "planning_estimate", "source_ids": [], "evidence_status": "modeled_estimate"}],
         "threats": [
             {"text": item.get("text"), "basis": "research", "source_ids": _source_ids(item) if has_snapshot else [], "evidence_status": "source_backed" if has_snapshot else "unknown"}
             for item in threats
-        ] or [{"text": "Unknown: no source-backed threat was returned.", "basis": "missing_data", "source_ids": [], "evidence_status": "unknown"}],
+        ] or [{"text": item.get("text"), "basis": "planning_estimate", "source_ids": [], "evidence_status": "modeled_estimate"} for item in estimates if item.get("category") == "channel_validation"] or [{"text": "Modeled planning threat: scaling before validating acquisition economics may waste budget.", "basis": "planning_estimate", "source_ids": [], "evidence_status": "modeled_estimate"}],
         "sources": research.get("sources", []) if has_snapshot else [],
         "data_quality": _research_quality(research),
     }
@@ -88,6 +95,7 @@ def swot_analysis(startup: Startup, research: dict[str, Any]) -> dict[str, Any]:
 
 def marketing_plan(startup: Startup, research: dict[str, Any], swot: dict[str, Any]) -> dict[str, Any]:
     has_snapshot = bool(research.get("snapshot_id"))
+    estimated_claims = {claim.get("label"): claim for claim in research.get("estimated_numeric_claims", []) if isinstance(claim, dict)}
     return {
         "objective": {
             "title": startup.goal,
@@ -118,15 +126,20 @@ def marketing_plan(startup: Startup, research: dict[str, Any], swot: dict[str, A
         "budget_guidance": {
             "currency": startup.currency,
             "total_budget": str(startup.budget),
-            "amount_allocations": None,
-            "status": "not_allocated",
-            "reason": "No sourced CAC, conversion rate, or channel price data was verified; do not fabricate allocations.",
+            "amount_allocations": {
+                "validation": estimated_claims.get("Validation work budget allocation", {}).get("value"),
+                "acquisition_test": estimated_claims.get("Acquisition test budget allocation", {}).get("value"),
+                "reserve": estimated_claims.get("Contingency and iteration reserve", {}).get("value"),
+            },
+            "status": "modeled_estimate",
+            "reason": "Planning allocation derived from the user-provided budget using an explicit 40/30/30 heuristic; it is not a market price or forecast.",
         },
         "kpis": [
-            {"name": "Qualified student interviews", "target": None, "definition": "Completed interviews with the target customer segment."},
-            {"name": "Activation", "target": None, "definition": "A user completes the core diagnostic or coaching workflow."},
-            {"name": "Repeat usage", "target": None, "definition": "A user returns for a second meaningful coaching task."},
-            {"name": "Partner validation", "target": None, "definition": "A university, career center, or program agrees to a pilot."}
+            {"name": "Qualified student interviews", "target": estimated_claims.get("Validation interview target", {}).get("value"), "target_type": "modeled_estimate", "definition": "Completed interviews with the target customer segment."},
+            {"name": "Pilot participants", "target": estimated_claims.get("Pilot cohort target", {}).get("value"), "target_type": "modeled_estimate", "definition": "Participants activated in a controlled validation cohort."},
+            {"name": "Activation", "target": "Measure before setting a target", "target_type": "validation_required", "definition": "A user completes the core diagnostic or coaching workflow."},
+            {"name": "Repeat usage", "target": "Measure before setting a target", "target_type": "validation_required", "definition": "A user returns for a second meaningful coaching task."},
+            {"name": "Partner validation", "target": "1 pilot conversation", "target_type": "modeled_estimate", "definition": "A university, career center, or program agrees to a pilot."}
         ],
         "sources": research.get("sources", []) if has_snapshot else [],
         "data_quality": {

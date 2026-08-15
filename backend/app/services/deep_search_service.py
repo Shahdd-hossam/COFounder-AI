@@ -7,6 +7,7 @@ from app.db.models import Startup
 from app.integrations.manus_api_fallback import ManusFallbackError, ManusResearchFallback
 from app.integrations.mcp_gateway import MCPGateway, mcp_gateway
 from app.services.evidence_cleaner import clean_research_payload
+from app.services.estimate_service import add_planning_estimates
 
 
 DEEP_SEARCH_CONTRACT = {
@@ -110,7 +111,7 @@ class DeepSearchService:
                 cleaned["data_quality"]["fallback_chain"] = ["Tavily/OpenRouter MCP", "Manus API"]
                 cleaned["data_quality"]["primary_path_status"] = gateway_result.status
                 cleaned["data_quality"]["gateway_assumptions"] = gateway_result.assumptions
-                return cleaned
+                return add_planning_estimates(startup, cleaned)
             except ManusFallbackError as exc:
                 errors.append(f"Manus API fallback unavailable: {exc}")
             except Exception as exc:
@@ -125,7 +126,7 @@ class DeepSearchService:
         cleaned["data_quality"]["fallback_chain"] = ["Tavily/OpenRouter MCP", "Manus API"]
         if errors:
             cleaned["data_quality"]["fallback_errors"] = errors
-        return cleaned
+        return add_planning_estimates(startup, cleaned)
 
 
 deep_search_service = DeepSearchService(mcp_gateway)
