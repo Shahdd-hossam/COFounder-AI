@@ -113,6 +113,9 @@ def clean_numeric_claims(raw_claims: Any, source_ids: set[str]) -> tuple[list[di
     return cleaned, issues
 
 
+ALLOWED_UNSOURCED_STATUSES = {"mock_reference", "modeled_estimate", "llm_estimate", "context", "hypothesis"}
+
+
 def _clean_insights(raw_items: Any, source_ids: set[str], field_name: str, issues: list[str]) -> list[dict[str, Any]]:
     cleaned: list[dict[str, Any]] = []
     for index, item in enumerate(raw_items if isinstance(raw_items, list) else []):
@@ -120,13 +123,18 @@ def _clean_insights(raw_items: Any, source_ids: set[str], field_name: str, issue
             issues.append(f"{field_name}[{index}] ignored: insight text is missing")
             continue
         linked_sources = [str(item_id) for item_id in item.get("source_ids", []) if str(item_id) in source_ids]
-        if not linked_sources:
+        evidence_status = str(item.get("evidence_status") or "")
+        if not linked_sources and evidence_status not in ALLOWED_UNSOURCED_STATUSES:
             issues.append(f"{field_name}[{index}] ignored: insight has no valid source")
             continue
         cleaned.append({
             "text": str(item["text"]).strip(),
             "source_ids": linked_sources,
             "confidence": item.get("confidence") if item.get("confidence") in {"low", "medium", "high"} else "low",
+            "evidence_status": evidence_status or ("source_backed" if linked_sources else "unknown"),
+            "methodology": item.get("methodology"),
+            "assumptions": [str(value) for value in item.get("assumptions", [])],
+            "validation_plan": item.get("validation_plan"),
         })
     return cleaned
 
@@ -138,14 +146,18 @@ def _clean_competitors(raw_items: Any, source_ids: set[str], issues: list[str]) 
             issues.append(f"competitors[{index}] ignored: competitor name is missing")
             continue
         linked_sources = [str(item_id) for item_id in item.get("source_ids", []) if str(item_id) in source_ids]
-        if not linked_sources:
+        evidence_status = str(item.get("evidence_status") or "")
+        if not linked_sources and evidence_status not in ALLOWED_UNSOURCED_STATUSES:
             issues.append(f"competitors[{index}] ignored: competitor has no valid source")
             continue
         cleaned.append({
             "name": str(item["name"]).strip(),
             "strength": item.get("strength"),
             "weakness": item.get("weakness"),
+            "pricing": item.get("pricing"),
             "source_ids": linked_sources,
+            "evidence_status": evidence_status or ("source_backed" if linked_sources else "unknown"),
+            "reason": item.get("reason"),
         })
     return cleaned
 
@@ -170,7 +182,19 @@ def clean_research_payload(raw: Any) -> dict[str, Any]:
         "opportunities": _clean_insights(payload.get("opportunities"), source_ids, "opportunities", issues),
         "threats": _clean_insights(payload.get("threats"), source_ids, "threats", issues),
     }
-    return {
+    quality = {
+        "confidence": "high" if sources and not issues else "medium" if sources else "low",
+        "coverage": 1.0 if sources and not issues else 0.5 if sources else 0.0,
+        "missing_fields": payload.get("missing_fields") if isinstance(payload.get("missing_fields"), list) else reported_quality.get("missing_fields", []),
+        "conflicts": payload.get("conflicts") if isinstance(payload.get("conflicts"), list) else reported_quality.get("conflicts", []),
+        "assumptions": payload.get("assumptions") if isinstance(payload.get("assumptions"), list) else reported_quality.get("assumptions", []),
+        "cleaning_issues": issues,
+        "unknown_numeric_claims": sum(1 for claim in numeric_claims if claim["number_type"] == "unknown"),
+    }
+    for key in ("mock_profile_match", "mock_similarity_score", "mock_data_notice", "fallback_chain", "fallback_errors", "llm_reasoning", "estimate_confidence", "estimated_numeric_claims", "verified_numeric_claims"):
+        if key in reported_quality:
+            quality[key] = reported_quality[key]
+    result = {
         "market_overview": overview or "Unknown: no verified market overview was returned.",
         "market_overview_source_ids": overview_source_ids,
         "target_customer_insights": insight_fields["target_customer_insights"],
@@ -181,13 +205,9 @@ def clean_research_payload(raw: Any) -> dict[str, Any]:
         "threats": insight_fields["threats"],
         "sources": sources,
         "numeric_claims": numeric_claims,
-        "data_quality": {
-            "confidence": "high" if sources and not issues else "medium" if sources else "low",
-            "coverage": 1.0 if sources and not issues else 0.5 if sources else 0.0,
-            "missing_fields": payload.get("missing_fields") if isinstance(payload.get("missing_fields"), list) else reported_quality.get("missing_fields", []),
-            "conflicts": payload.get("conflicts") if isinstance(payload.get("conflicts"), list) else reported_quality.get("conflicts", []),
-            "assumptions": payload.get("assumptions") if isinstance(payload.get("assumptions"), list) else reported_quality.get("assumptions", []),
-            "cleaning_issues": issues,
-            "unknown_numeric_claims": sum(1 for claim in numeric_claims if claim["number_type"] == "unknown"),
-        },
+        "data_quality": quality,
     }
+    for key in ("data_mode", "profile_family", "mock_profile_key", "mock_profile_name", "similarity", "llm_reasoning", "llm_estimate_mode", "estimated_findings", "estimated_numeric_claims", "estimate_mode", "generated_by", "estimate_assumptions", "validation_tasks", "llm_assumptions"):
+        if key in payload:
+            result[key] = payload[key]
+    return result

@@ -19,7 +19,7 @@ def _research_quality(research: dict[str, Any]) -> dict[str, Any]:
 
 
 def competitor_analysis(startup: Startup, research: dict[str, Any]) -> dict[str, Any]:
-    has_snapshot = bool(research.get("snapshot_id"))
+    has_snapshot = bool(research.get("snapshot_id") or research.get("data_mode") == "mock_seed" or research.get("llm_estimate_mode"))
     competitors = []
     for item in research.get("competitors", []):
         if not isinstance(item, dict):
@@ -33,7 +33,7 @@ def competitor_analysis(startup: Startup, research: dict[str, Any]) -> dict[str,
                 "weakness": item.get("weakness") or "Unknown: source did not specify a verified weakness.",
                 "pricing": item.get("pricing") or "Unknown",
                 "source_ids": source_ids,
-                "evidence_status": "source_backed" if source_ids else "unknown",
+                "evidence_status": item.get("evidence_status") or ("source_backed" if source_ids else "unknown"),
             }
         )
     if not competitors:
@@ -67,7 +67,7 @@ def competitor_analysis(startup: Startup, research: dict[str, Any]) -> dict[str,
 
 
 def swot_analysis(startup: Startup, research: dict[str, Any]) -> dict[str, Any]:
-    has_snapshot = bool(research.get("snapshot_id"))
+    has_snapshot = bool(research.get("snapshot_id") or research.get("data_mode") == "mock_seed" or research.get("llm_estimate_mode"))
     opportunities = _insight_items(research, "opportunities")
     threats = _insight_items(research, "threats")
     estimates = _insight_items(research, "estimated_findings")
@@ -94,7 +94,7 @@ def swot_analysis(startup: Startup, research: dict[str, Any]) -> dict[str, Any]:
 
 
 def marketing_plan(startup: Startup, research: dict[str, Any], swot: dict[str, Any]) -> dict[str, Any]:
-    has_snapshot = bool(research.get("snapshot_id"))
+    has_snapshot = bool(research.get("snapshot_id") or research.get("data_mode") == "mock_seed" or research.get("llm_estimate_mode"))
     estimated_claims = {claim.get("label"): claim for claim in research.get("estimated_numeric_claims", []) if isinstance(claim, dict)}
     return {
         "objective": {

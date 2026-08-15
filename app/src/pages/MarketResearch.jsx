@@ -101,8 +101,8 @@ function MarketResearch() {
 
               <section className="panel research-section">
                 <p className="eyebrow">Market overview</p>
-                <div className="row-title"><h2>{result.market_overview || "Unknown"}</h2><QualityBadge value={result.market_overview_status || (result.market_overview?.startsWith("Preliminary") ? "modeled_estimate" : "source_backed")} /></div>
-                <p className="muted">Tool: {result.tool || "not configured"}. Fallback path: {(quality.fallback_chain || []).join(" → ") || "not configured"}. All claims below retain their evidence links and cleaning metadata.</p>
+                <div className="row-title"><h2>{result.market_overview || "Unknown"}</h2><QualityBadge value={result.market_overview_status || (result.data_mode === "mock_seed" ? "mock_reference" : result.market_overview?.startsWith("Preliminary") ? "modeled_estimate" : "source_backed")} /></div>
+                <p className="muted">Tool: {result.tool || "not configured"}. Data mode: {result.data_mode || "live"}. Profile: {result.mock_profile_name || "none"}. Fallback path: {(quality.fallback_chain || []).join(" → ") || "not configured"}. All claims below retain their evidence links and cleaning metadata.</p>
                 {quality.fallback_errors?.length ? <p className="warning">Research connectors were unavailable. No unsupported result was substituted.</p> : null}
               </section>
 

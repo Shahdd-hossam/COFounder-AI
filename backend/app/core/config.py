@@ -27,11 +27,19 @@ class Settings(BaseSettings):
     manus_api_base_url: str = Field(default="https://api.manus.ai", validation_alias="MANUS_API_BASE_URL")
     manus_timeout_seconds: int = Field(default=180, validation_alias="MANUS_TIMEOUT_SECONDS")
     manus_poll_interval_seconds: int = Field(default=4, validation_alias="MANUS_POLL_INTERVAL_SECONDS")
+    llm_enabled: bool = Field(default=False, validation_alias="LLM_ENABLED")
+    llm_api_key: str | None = Field(default=None, validation_alias="LLM_API_KEY")
+    llm_base_url: str | None = Field(default=None, validation_alias="LLM_BASE_URL")
+    llm_model: str = Field(default="gpt-5", validation_alias="LLM_MODEL")
+    llm_timeout_seconds: int = Field(default=90, validation_alias="LLM_TIMEOUT_SECONDS")
+    llm_reasoning_effort: str = Field(default="medium", validation_alias="LLM_REASONING_EFFORT")
+    mock_profiles_enabled: bool = Field(default=True, validation_alias="MOCK_PROFILES_ENABLED")
 
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",
+        populate_by_name=True,
     )
 
 

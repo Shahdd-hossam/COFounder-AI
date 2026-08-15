@@ -53,12 +53,14 @@ def test_arbitrary_startup_uses_description_driven_fallback_safely() -> None:
     startup = create_startup(client)
 
     research = client.post(f"/api/v1/startups/{startup['id']}/market-research/runs").json()
-    assert research["status"] == "partial"
+    assert research["status"] == "ready"
     result = research["result_json"]
     assert result["numeric_claims"]
     assert all(claim["number_type"] == "modeled_estimate" for claim in result["numeric_claims"])
-    assert result["sources"] == []
-    assert result["market_overview_status"] == "modeled_estimate"
+    assert result["sources"]
+    assert result["data_mode"] == "mock_seed"
+    assert result["market_overview"]
+    assert result["data_quality"]["mock_data_notice"]
     assert result["estimate_mode"] in {"transparent_planning_estimates", "llm_assisted_estimates"}
     assert "Tavily/OpenRouter MCP" in result["data_quality"]["fallback_chain"]
     assert "Manus API" in result["data_quality"]["fallback_chain"]
@@ -70,16 +72,16 @@ def test_all_feature_runs_remain_execution_safe_without_evidence() -> None:
     startup = create_startup(client)
 
     competitor = client.post(f"/api/v1/startups/{startup['id']}/competitor-analysis/runs").json()
-    assert competitor["status"] == "partial"
+    assert competitor["status"] == "ready"
     assert competitor["result_json"]["competitors"]
-    assert all(item["evidence_status"] == "modeled_estimate" for item in competitor["result_json"]["competitors"])
+    assert any(item["evidence_status"] == "mock_reference" for item in competitor["result_json"]["competitors"])
 
     swot = client.post(f"/api/v1/startups/{startup['id']}/swot/runs").json()
-    assert swot["status"] == "partial"
+    assert swot["status"] == "ready"
     assert all(item["evidence_status"] in {"context", "hypothesis", "unknown"} for item in swot["result_json"]["strengths"] + swot["result_json"]["weaknesses"])
 
     marketing = client.post(f"/api/v1/startups/{startup['id']}/marketing-plan/runs").json()
-    assert marketing["status"] == "partial"
+    assert marketing["status"] == "ready"
     allocations = marketing["result_json"]["budget_guidance"]["amount_allocations"]
     assert allocations["validation"] and allocations["acquisition_test"] and allocations["reserve"]
     assert marketing["result_json"]["budget_guidance"]["status"] == "modeled_estimate"
@@ -87,6 +89,6 @@ def test_all_feature_runs_remain_execution_safe_without_evidence() -> None:
     assert marketing["result_json"]["kpis"][0]["target_type"] == "modeled_estimate"
 
     action_plan = client.post(f"/api/v1/startups/{startup['id']}/action-plans/runs").json()
-    assert action_plan["status"] == "partial"
+    assert action_plan["status"] == "ready"
     assert action_plan["result_json"]["execution_enabled"] is False
     assert action_plan["result_json"]["budget"]["spend_authorized"] is False

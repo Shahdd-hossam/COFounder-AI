@@ -84,8 +84,10 @@ def test_deep_search_without_connector_returns_labeled_estimates_not_facts() -> 
     response = client.post(f"/api/v1/startups/{startup['id']}/market-research/runs")
     assert response.status_code == 200
     run = response.json()
-    assert run["status"] == "partial"
+    assert run["status"] == "ready"
     assert run["result_json"]["numeric_claims"]
     assert all(claim["number_type"] == "modeled_estimate" for claim in run["result_json"]["numeric_claims"])
-    assert run["result_json"]["market_overview_status"] == "modeled_estimate"
-    assert run["result_json"]["data_quality"]["estimate_confidence"] == "low"
+    assert run["result_json"]["market_overview"]
+    assert run["result_json"]["data_mode"] == "mock_seed"
+    assert run["result_json"]["mock_profile_key"]
+    assert run["result_json"]["similarity"]["method"] == "token_overlap_with_priority"

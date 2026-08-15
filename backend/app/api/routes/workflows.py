@@ -38,7 +38,7 @@ async def execute_workflow(startup_id: int, feature: str, fn, db: Session):
     run.progress_percent = 20
     db.flush()
     try:
-        result = await fn(startup)
+        result = await fn(startup, db)
         tool_status = result.get("workflow_status", result.get("status"))
         mark_run(run, "partial" if tool_status in {"fallback", "failed"} else "ready", result)
     except Exception as exc:

@@ -35,6 +35,20 @@ class Startup(Base):
     )
 
 
+class MockResearchProfile(Base):
+    __tablename__ = "mock_research_profiles"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    profile_key: Mapped[str] = mapped_column(String(120), unique=True, index=True)
+    display_name: Mapped[str] = mapped_column(String(200))
+    keywords_json: Mapped[list] = mapped_column(JSON, default=list)
+    payload_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    priority: Mapped[int] = mapped_column(Integer, default=0)
+    enabled: Mapped[bool] = mapped_column(default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
 class WorkflowRun(Base):
     __tablename__ = "workflow_runs"
 

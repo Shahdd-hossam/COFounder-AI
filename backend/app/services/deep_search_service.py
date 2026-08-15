@@ -2,12 +2,16 @@ from __future__ import annotations
 
 from typing import Any
 
+from sqlalchemy.orm import Session
+
 from app.core.config import get_settings
 from app.db.models import Startup
 from app.integrations.manus_api_fallback import ManusFallbackError, ManusResearchFallback
 from app.integrations.mcp_gateway import MCPGateway, mcp_gateway
 from app.services.evidence_cleaner import clean_research_payload
 from app.services.estimate_service import add_planning_estimates
+from app.services.llm_reasoning_service import LLMReasoningError, llm_reasoning_service
+from app.services.mock_research_service import match_profile
 
 
 DEEP_SEARCH_CONTRACT = {
@@ -65,13 +69,10 @@ class DeepSearchService:
             "threats": [],
             "sources": [],
             "numeric_claims": [],
-            "missing_fields": [
-                "verified_market_overview", "target_customer_insights", "competitor_evidence", "market_trends",
-                "customer_pain_points", "opportunities", "threats", "market_estimates",
-            ],
+            "missing_fields": ["verified_market_overview", "target_customer_insights", "competitor_evidence", "market_trends", "customer_pain_points", "opportunities", "threats", "market_estimates"],
             "conflicts": [],
             "assumptions": [
-                "Tavily/OpenRouter research failed or was unavailable; no external claim is presented.",
+                "Live research was unavailable; no external claim is presented.",
                 f"The description and target market for {startup.name} are user-provided context, not research evidence.",
                 *(errors or []),
             ],
@@ -93,39 +94,85 @@ class DeepSearchService:
             "context_revision": startup.context_revision,
         }
 
-    async def run(self, startup: Startup) -> dict[str, Any]:
-        request = self.build_request(startup)
-        gateway_result = await self.gateway.run("market_research", request, self.fallback(startup))
-        gateway_result_dict = gateway_result.as_dict()
+    async def _enrich_with_llm(self, startup: Startup, payload: dict[str, Any], errors: list[str]) -> dict[str, Any]:
+        settings = get_settings()
+        try:
+            reasoning = await llm_reasoning_service.enrich(startup, payload, settings)
+        except LLMReasoningError as exc:
+            errors.append(str(exc))
+            return payload
+        if not reasoning:
+            return payload
+        result = dict(payload)
+        result["llm_reasoning"] = reasoning.get("reasoning_summary")
+        result["llm_estimate_mode"] = "structured_reasoning"
+        result["estimated_findings"] = list(result.get("estimated_findings") or [])
+        result["estimated_findings"].extend([
+            {**item, "number_type": "modeled_estimate", "source_ids": [], "evidence_status": "llm_estimate"}
+            for item in reasoning.get("additional_opportunities", []) + reasoning.get("additional_threats", [])
+        ])
+        result["estimated_numeric_claims"] = list(result.get("estimated_numeric_claims") or [])
+        result["estimated_numeric_claims"].extend([
+            {**claim, "number_type": "modeled_estimate", "source_ids": [], "geography": startup.target_market, "currency": claim.get("currency"), "unit": claim.get("unit") or "planning units"}
+            for claim in reasoning.get("estimated_numeric_claims", [])
+        ])
+        result["llm_assumptions"] = reasoning.get("assumptions", [])
+        result["validation_tasks"] = list(result.get("validation_tasks") or []) + reasoning.get("validation_tasks", [])
+        quality = dict(result.get("data_quality") or {})
+        quality["llm_reasoning"] = "used"
+        result["data_quality"] = quality
+        existing_claims = list(result.get("numeric_claims") or [])
+        result["numeric_claims"] = existing_claims + result["estimated_numeric_claims"]
+        return result
+
+    async def run(self, startup: Startup, db: Session) -> dict[str, Any]:
+        gateway_result = await self.gateway.run("market_research", self.build_request(startup), self.fallback(startup))
         errors: list[str] = []
         if gateway_result.error:
             errors.append(f"Primary research error: {gateway_result.error}")
-        if gateway_result.status in {"fallback", "failed"}:
-            errors.append("Primary Tavily/MCP research path did not return a verified result.")
-            try:
-                manus_result = await ManusResearchFallback(get_settings()).run(self.startup_payload(startup))
-                cleaned = clean_research_payload(manus_result)
-                cleaned["workflow_status"] = "success"
-                cleaned["tool"] = "Manus API structured fallback"
-                cleaned["tool_error"] = None
-                cleaned["data_quality"]["fallback_chain"] = ["Tavily/OpenRouter MCP", "Manus API"]
-                cleaned["data_quality"]["primary_path_status"] = gateway_result.status
-                cleaned["data_quality"]["gateway_assumptions"] = gateway_result.assumptions
-                return add_planning_estimates(startup, cleaned)
-            except ManusFallbackError as exc:
-                errors.append(f"Manus API fallback unavailable: {exc}")
-            except Exception as exc:
-                errors.append(f"Manus API fallback failed: {type(exc).__name__}")
+        if gateway_result.status not in {"fallback", "failed"}:
+            cleaned = clean_research_payload(gateway_result.result)
+            cleaned["workflow_status"] = gateway_result.status
+            cleaned["tool"] = gateway_result.tool
+            cleaned["tool_error"] = gateway_result.error
+            cleaned["data_quality"]["fallback_chain"] = ["Tavily/OpenRouter MCP", "Manus API", "database mock profile", "GPT reasoning"]
+            return add_planning_estimates(startup, await self._enrich_with_llm(startup, cleaned, errors))
 
-        cleaned = clean_research_payload(gateway_result.result)
-        cleaned["workflow_status"] = gateway_result.status
-        cleaned["tool"] = gateway_result.tool
-        cleaned["tool_error"] = gateway_result.error
-        cleaned["data_quality"]["gateway_assumptions"] = gateway_result.assumptions
-        cleaned["data_quality"]["gateway_missing_fields"] = gateway_result.missing_fields
-        cleaned["data_quality"]["fallback_chain"] = ["Tavily/OpenRouter MCP", "Manus API"]
-        if errors:
-            cleaned["data_quality"]["fallback_errors"] = errors
+        errors.append("Primary Tavily/OpenRouter research path did not return a verified result.")
+        try:
+            manus_result = await ManusResearchFallback(get_settings()).run(self.startup_payload(startup))
+            cleaned = clean_research_payload(manus_result)
+            cleaned["workflow_status"] = "success"
+            cleaned["tool"] = "Manus API structured fallback"
+            cleaned["tool_error"] = None
+            cleaned["data_quality"]["fallback_chain"] = ["Tavily/OpenRouter MCP", "Manus API", "database mock profile", "GPT reasoning"]
+            cleaned = await self._enrich_with_llm(startup, cleaned, errors)
+            return add_planning_estimates(startup, cleaned)
+        except ManusFallbackError as exc:
+            errors.append(f"Manus API fallback unavailable: {exc}")
+        except Exception as exc:
+            errors.append(f"Manus API fallback failed: {type(exc).__name__}")
+
+        try:
+            mock_payload, match = match_profile(db, startup)
+            cleaned = clean_research_payload(mock_payload)
+            cleaned["workflow_status"] = "mock"
+            cleaned["tool"] = "Database mock research profile"
+            cleaned["tool_error"] = None
+            cleaned["data_quality"]["fallback_chain"] = ["Tavily/OpenRouter MCP", "Manus API", "database mock profile", "GPT reasoning"]
+            cleaned["data_quality"]["mock_similarity"] = match
+            cleaned = await self._enrich_with_llm(startup, cleaned, errors)
+            result = add_planning_estimates(startup, cleaned)
+            result["data_quality"]["fallback_errors"] = errors
+            return result
+        except Exception as exc:
+            errors.append(f"Database mock profile failed: {type(exc).__name__}")
+
+        cleaned = clean_research_payload(self.fallback(startup, errors))
+        cleaned["workflow_status"] = "fallback"
+        cleaned["tool"] = "Planning estimate fallback"
+        cleaned["tool_error"] = "; ".join(errors)
+        cleaned["data_quality"]["fallback_chain"] = ["Tavily/OpenRouter MCP", "Manus API", "database mock profile", "GPT reasoning", "planning estimate fallback"]
         return add_planning_estimates(startup, cleaned)
 
 
