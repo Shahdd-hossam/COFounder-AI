@@ -2,9 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import PageShell from "../components/common/PageShell";
 import { getStartup, getWorkflowRun, startMarketResearchRun } from "../services/api";
+import { claimValueLabel, resultLabel, sourceCountLabel, sourceModeLabel } from "../components/common/resultLanguage";
 
 function QualityBadge({ value }) {
-  return <span className={`quality-badge quality-${value || "unknown"}`}>{value || "unknown"}</span>;
+  const label = resultLabel(value);
+  const tone = String(value || "").includes("estimate") ? "estimate" : String(value || "").includes("mock") ? "mock" : value === "unknown" ? "warning" : "";
+  return <span className={`quality-badge quality-${value || "review"}`} data-tone={tone}>{label}</span>;
 }
 
 function MarketResearch() {
@@ -59,7 +62,8 @@ function MarketResearch() {
   };
 
   return (
-    <PageShell title="Market Research" subtitle="Deep Search returns source-backed evidence and clearly marks what remains unknown.">
+          <PageShell title="Market Research" subtitle="Build a practical research baseline, see where it comes from, and turn missing evidence into validation tasks.">
+
       {!startupId ? (
         <section className="panel">
           <p className="eyebrow">Evidence workspace</p>
@@ -78,7 +82,7 @@ function MarketResearch() {
             <div>
               <p className="eyebrow">Deep Search workspace</p>
               <h2>{startup.name}</h2>
-              <p className="muted">Research is pinned to context revision {startup.context_revision}. Unsupported market numbers are never shown as facts.</p>
+              <p className="muted">Research is pinned to context revision {startup.context_revision}. The description and target market drive profile matching and planning recommendations.</p>
             </div>
             <button className="primary-button" type="button" onClick={startResearch} disabled={running}>
               {running ? "Searching and cleaning..." : "Run Deep Search"}
@@ -88,15 +92,15 @@ function MarketResearch() {
           {!run ? (
             <section className="panel empty-state research-empty">
               <h3>No research run yet</h3>
-              <p>Run Deep Search to collect sources. If the connector is unavailable, the result will say unknown instead of fabricating estimates.</p>
+              <p>Run research to build a coherent baseline. If live sources are unavailable, the workspace uses a reference profile and clearly separates planning ranges from research-backed findings.</p>
             </section>
           ) : (
             <>
               <section className="quality-grid">
-                <article className="panel quality-card"><span>Workflow status</span><strong>{run.status}</strong></article>
-                <article className="panel quality-card"><span>Evidence confidence</span><strong><QualityBadge value={quality.confidence} /></strong></article>
-                <article className="panel quality-card"><span>Source coverage</span><strong>{sources.length ? `${Math.round((quality.coverage || 0) * 100)}%` : "No verified sources"}</strong></article>
-                <article className="panel quality-card"><span>Numeric claims returned</span><strong>{numericClaims.length ? `${numericClaims.length} (${quality.unknown_numeric_claims || 0} unknown)` : "None returned"}</strong></article>
+                <article className="panel quality-card"><span>Workflow</span><strong>{resultLabel(run.status)}</strong></article>
+                <article className="panel quality-card"><span>Research basis</span><strong><QualityBadge value={result.data_mode === "mock_seed" ? "mock_reference" : sourceModeLabel(result)} /></strong></article>
+                <article className="panel quality-card"><span>Research references</span><strong>{sourceCountLabel(sources.length)}</strong></article>
+                <article className="panel quality-card"><span>Planning values</span><strong>{numericClaims.length ? `${numericClaims.length} values to review` : "Add values during validation"}</strong></article>
               </section>
 
               <section className="panel research-section">
@@ -108,37 +112,37 @@ function MarketResearch() {
 
               <section className="panel research-section">
                 <div className="section-heading"><h2>Source-backed findings</h2><span>Uncited insights are removed</span></div>
-                {insightGroups.every(([, items]) => items.length === 0) ? <p className="empty-state">No source-backed findings returned.</p> : null}
+                {insightGroups.every(([, items]) => items.length === 0) ? <p className="empty-state">No findings in this category yet. Use the validation tasks below to collect evidence.</p> : null}
                 <div className="insight-grid">
                   {insightGroups.map(([title, items]) => (
                     <article className="insight-group" key={title}>
                       <h3>{title}</h3>
-                      {items.length === 0 ? <p className="muted">Unknown</p> : items.map((item, index) => <div className="insight-row" key={`${title}-${index}`}><p>{item.text}</p><span>{item.source_ids?.length || 0} source(s) · {item.confidence || "low"}</span></div>)}
+                      {items.length === 0 ? <p className="muted">Needs validation</p> : items.map((item, index) => <div className="insight-row" key={`${title}-${index}`}><p>{item.text}</p><span>{sourceCountLabel(item.source_ids?.length || 0)} · {resultLabel(item.evidence_status || item.confidence)}</span></div>)}
                     </article>
                   ))}
                 </div>
                             </section>
               <section className="panel research-section">
-                <div className="section-heading"><h2>Model-assisted planning estimates</h2><span>{estimatedFindings.length} estimate(s)</span></div>
-                <p className="warning">These values are planning hypotheses generated from startup context and explicit heuristics. They are not verified market facts.</p>
-                {(estimatedFindings || []).map((item, index) => <article className="insight-row" key={`estimate-${index}`}><p>{item.text}</p><span>{item.number_type} · {item.confidence} confidence · {item.methodology}</span><small>{item.validation_plan}</small></article>)}
+                <div className="section-heading"><h2>Planning ranges</h2><span>{estimatedFindings.length ? `${estimatedFindings.length} planning views` : "Add through validation"}</span></div>
+                <p className="warning">These are decision-support ranges from startup context and reasoning. Confirm them with interviews, pilots, and measured experiments before treating them as operating targets.</p>
+                {(estimatedFindings || []).map((item, index) => <article className="insight-row" key={`estimate-${index}`}><p>{item.text}</p><span>{resultLabel(item.number_type)} · {resultLabel(item.confidence)} · {item.methodology}</span><small>Next check: {item.validation_plan}</small></article>)}
               </section>
               <section className="panel research-section">
-                <div className="section-heading"><h2>Numeric claims</h2><span>Verified and modeled values are labeled</span></div>
+                <div className="section-heading"><h2>Decision values</h2><span>Each value has a review basis</span></div>
 
-                {numericClaims.length === 0 ? <p className="empty-state">No numeric claim was returned. This is safer than presenting an unsupported estimate.</p> : null}
+                {numericClaims.length === 0 ? <p className="empty-state">No decision values yet. Add a pilot result or planning assumption to make this section actionable.</p> : null}
                 {numericClaims.map((claim, index) => (
                   <article className="claim-row" key={`${claim.label}-${index}`}>
-                    <div><strong>{claim.label}</strong><p className="muted">{claim.value ?? "Unknown"} {claim.unit || ""} {claim.currency || ""}</p></div>
-                    <div className="claim-meta"><QualityBadge value={claim.number_type} /><span>{claim.source_ids?.length || 0} source(s)</span></div>
+                    <div><strong>{claim.label}</strong><p className="muted">{claimValueLabel(claim)}</p></div>
+                    <div className="claim-meta"><QualityBadge value={claim.number_type} /><span>{sourceCountLabel(claim.source_ids?.length || 0)}</span></div>
                   </article>
                 ))}
-                {unknownClaims.length > 0 ? <p className="warning">Unknown claims are shown without values because they failed source or methodology checks.</p> : null}
+                {unknownClaims.length > 0 ? <p className="warning">Some values need validation before they can guide a decision. Use the source and pilot tasks rather than treating them as facts.</p> : null}
               </section>
 
               <section className="research-two-column">
-                <article className="panel research-section"><div className="section-heading"><h2>Sources</h2><span>{sources.length}</span></div>{sources.length === 0 ? <p className="empty-state">No verified sources returned.</p> : sources.map((source) => <div className="source-row" key={source.id}><a href={source.url} target="_blank" rel="noreferrer">{source.title}</a><span>{source.publisher || "Unknown publisher"} · {source.quality}</span></div>)}</article>
-                <article className="panel research-section"><div className="section-heading"><h2>Data gaps</h2><span>{quality.missing_fields?.length || 0}</span></div>{quality.missing_fields?.length ? <ul className="data-list">{quality.missing_fields.map((field) => <li key={field}>{field}</li>)}</ul> : <p className="empty-state">No missing fields reported.</p>}{quality.cleaning_issues?.length ? <><h3>Cleaning notes</h3><ul className="data-list">{quality.cleaning_issues.map((issue) => <li key={issue}>{issue}</li>)}</ul></> : null}</article>
+                <article className="panel research-section"><div className="section-heading"><h2>Research references</h2><span>{sources.length ? `${sources.length} available` : "Build reference set"}</span></div>{sources.length === 0 ? <p className="empty-state">Research references will appear after a live or reference-profile run.</p> : sources.map((source) => <div className="source-row" key={source.id}><a href={source.url} target="_blank" rel="noreferrer">{source.title}</a><span>{source.publisher || "Reference source"} · {resultLabel(source.quality)}</span></div>)}</article>
+                <article className="panel research-section"><div className="section-heading"><h2>Validation queue</h2><span>{quality.missing_fields?.length ? `${quality.missing_fields.length} items` : "Ready"}</span></div>{quality.missing_fields?.length ? <ul className="data-list">{quality.missing_fields.map((field) => <li key={field}>{field}</li>)}</ul> : <p className="empty-state">No validation items were raised by this run.</p>}{quality.cleaning_issues?.length ? <><h3>Review notes</h3><ul className="data-list">{quality.cleaning_issues.map((issue) => <li key={issue}>{issue}</li>)}</ul></> : null}</article>
               </section>
             </>
           )}

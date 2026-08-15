@@ -4,10 +4,10 @@ import PageShell from "../components/common/PageShell";
 import { getStartup } from "../services/api";
 
 const MODULES = [
-  { title: "Market Research", description: "Use source-backed evidence and show what remains unknown.", path: "market-research" },
-  { title: "Competitor Analysis", description: "Compare direct and indirect alternatives with source links and pricing uncertainty.", path: "competitor-analysis" },
-  { title: "SWOT Analysis", description: "Turn context and evidence into traceable strategic dimensions.", path: "swot-analysis" },
-  { title: "Marketing Plan", description: "Build channels, experiments, KPIs, and budget guardrails without invented forecasts.", path: "marketing-plan" },
+  { title: "Market Research", description: "Build a research baseline, reference set, and practical validation queue.", path: "market-research" },
+  { title: "Competitor Analysis", description: "Compare matched alternatives and turn pricing gaps into research questions.", path: "competitor-analysis" },
+  { title: "SWOT Analysis", description: "Turn context and research into strategic signals and validation questions.", path: "swot-analysis" },
+  { title: "Marketing Plan", description: "Build channels, experiments, KPIs, and budget guardrails for the next pilot.", path: "marketing-plan" },
   { title: "Action Plan", description: "Create execution tasks while keeping ad launch and spending disabled.", path: "action-plan" },
 ];
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { getWorkflowRun } from "../../services/api";
+import { resultLabel, sourceModeLabel } from "./resultLanguage";
 
 function FeatureRunPanel({ startupId, title, eyebrow, description, runFunction, renderResult, emptyText }) {
   const [run, setRun] = useState(null);
@@ -40,9 +41,9 @@ function FeatureRunPanel({ startupId, title, eyebrow, description, runFunction, 
       {run ? (
         <>
           <section className="quality-grid">
-            <article className="panel quality-card"><span>Status</span><strong>{run.status}</strong></article>
-            <article className="panel quality-card"><span>Evidence status</span><strong>{result?.data_quality?.confidence || result?.workflow_status || "unknown"}</strong></article>
-            <article className="panel quality-card"><span>Snapshot</span><strong>{result?.research_snapshot_id || "none"}</strong></article>
+            <article className="panel quality-card"><span>Workflow</span><strong>{resultLabel(run.status)}</strong></article>
+            <article className="panel quality-card"><span>Research basis</span><strong>{sourceModeLabel(result)}</strong></article>
+            <article className="panel quality-card"><span>Review confidence</span><strong>{resultLabel(result?.data_quality?.confidence || result?.workflow_status)}</strong></article>
           </section>
           {renderResult(result)}
         </>

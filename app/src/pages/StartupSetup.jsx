@@ -5,7 +5,7 @@ import { createStartup } from "../services/api";
 
 const DEMO_STARTUP = {
   name: "CareerLaunch Egypt",
-  description: "An Arabic-English AI career coach for final-year university students.",
+  description: "A bilingual Arabic-English AI career coach that helps final-year university students and recent graduates improve resumes, practice interviews, discover suitable entry-level roles, and follow a structured job-search plan in Egypt, starting with Alexandria.",
   target_customer: "Final-year university students",
   target_market: "Egypt, starting with Alexandria",
   business_model: "Freemium subscription",
@@ -74,9 +74,9 @@ function StartupSetup() {
           <button type="button" className="secondary-button" onClick={loadDemo}>Use CareerLaunch demo</button>
         </div>
         <label>Startup name<input name="name" value={form.name} onChange={updateField} required /></label>
-        <label>Description<textarea name="description" value={form.description} onChange={updateField} rows={3} required /></label>
+        <label>Description<textarea name="description" value={form.description} onChange={updateField} rows={4} required /><span className="field-help">Include the problem, target customer, location, workflow, and desired outcome. This is used to find the closest research profile.</span></label>
         <div className="form-two-column">
-          <label>Target customer<input name="target_customer" value={form.target_customer} onChange={updateField} required /></label>
+          <label>Target customer<input name="target_customer" value={form.target_customer} onChange={updateField} required /><span className="field-help">Be specific about who uses or pays for the product.</span></label>
           <label>Target market<input name="target_market" value={form.target_market} onChange={updateField} required /></label>
           <label>Business model<input name="business_model" value={form.business_model} onChange={updateField} required /></label>
           <label>Language<input name="language" value={form.language} onChange={updateField} required /></label>

@@ -113,3 +113,11 @@ textarea { resize: vertical; }
 @media (max-width: 980px) { .swot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 680px) { .swot-grid { grid-template-columns: 1fr; } .competitor-row, .channel-row, .task-row { align-items: flex-start; flex-direction: column; } .competitor-meta, .channel-meta { min-width: 0; text-align: left; } .kpi-row { grid-template-columns: 1fr; gap: 6px; } }
 @media (max-width: 760px) { .research-header { align-items: flex-start; flex-direction: column; } .research-two-column { grid-template-columns: 1fr; } .claim-row { align-items: flex-start; flex-direction: column; } .claim-meta { justify-content: flex-start; } }
+
+.field-help { display: block; margin-top: 6px; color: var(--muted); font-size: 0.78rem; line-height: 1.45; font-weight: 500; }
+.quality-badge { text-transform: none; letter-spacing: 0; }
+.quality-badge[data-tone="estimate"] { color: #7c5b11; background: #fff2cf; }
+.quality-badge[data-tone="mock"] { color: #51409a; background: #e9e4ff; }
+.quality-badge[data-tone="warning"] { color: #9b3f23; background: #ffe7df; }
+.insight-row small { display: block; margin-top: 8px; color: var(--muted); line-height: 1.45; }
+.research-section > .warning { margin: 8px 0 18px; }
