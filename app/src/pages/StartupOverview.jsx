@@ -4,9 +4,11 @@ import PageShell from "../components/common/PageShell";
 import { getStartup } from "../services/api";
 
 const MODULES = [
-  { title: "Market Research", description: "Deep-search the market and inspect evidence quality.", path: "market-research" },
-  { title: "SWOT Analysis", description: "Turn startup context and research into traceable strategic dimensions.", path: "swot-analysis" },
-  { title: "Marketing Plan", description: "Build the operating dashboard with channels, budget, KPIs, and actions.", path: "marketing-plan" },
+  { title: "Market Research", description: "Use source-backed evidence and show what remains unknown.", path: "market-research" },
+  { title: "Competitor Analysis", description: "Compare direct and indirect alternatives with source links and pricing uncertainty.", path: "competitor-analysis" },
+  { title: "SWOT Analysis", description: "Turn context and evidence into traceable strategic dimensions.", path: "swot-analysis" },
+  { title: "Marketing Plan", description: "Build channels, experiments, KPIs, and budget guardrails without invented forecasts.", path: "marketing-plan" },
+  { title: "Action Plan", description: "Create execution tasks while keeping ad launch and spending disabled.", path: "action-plan" },
 ];
 
 function StartupOverview() {

@@ -1,0 +1,76 @@
+{
+  "snapshot_id": "careerlaunch-egypt-openrouter-online-2026-08-15",
+  "provider": "OpenRouter web-enabled model",
+  "retrieved_on": "2026-08-15",
+  "market_overview": "Egypt has a large higher-education population and a documented transition from university to employment, while Alexandria is a major higher-education hub. The evidence supports testing a localized career-coaching proposition, but it does not support an invented total addressable market or conversion forecast.",
+  "market_overview_source_ids": ["capmas-higher-ed-2022-23", "sis-graduates-2022", "alexandria-university", "ilo-graduate-survey"],
+  "target_customer_insights": [
+    {"text": "Final-year students and recent graduates face an education-to-occupation mismatch in the surveyed tertiary graduate cohorts.", "source_ids": ["ilo-graduate-survey"], "confidence": "medium"},
+    {"text": "Bilingual career preparation is relevant because the product concept combines Arabic and English support, while the cited research discusses employability and communication gaps.", "source_ids": ["ilo-graduate-survey", "almentor"], "confidence": "low"},
+    {"text": "Alexandria contains a large university population and multiple public, private, and specialized institutions, making institutional and student validation possible.", "source_ids": ["alexandria-university", "pharos-university", "aastmt", "ejust"], "confidence": "medium"}
+  ],
+  "market_trends": [
+    {"text": "Egyptian career infrastructure is expanding through university career-development centers and virtual career events.", "source_ids": ["aucegypt-uccd", "uccd-expo", "ilo-project"], "confidence": "medium"},
+    {"text": "The local employment ecosystem is consolidating across job matching, career development, and recruitment technology.", "source_ids": ["basharsoft-acquisition", "wamda-career180"], "confidence": "medium"},
+    {"text": "MENA career platforms are moving toward AI-assisted matching, resume feedback, and interview automation.", "source_ids": ["qureos-guide", "wamda-qureos"], "confidence": "low"}
+  ],
+  "customer_pain_points": [
+    {"text": "Education-to-occupation mismatch can leave graduates in roles below their qualification level.", "source_ids": ["ilo-graduate-survey"], "confidence": "medium"},
+    {"text": "Students may need practical help with career direction, resume preparation, and interview readiness beyond their academic curriculum.", "source_ids": ["ilo-graduate-survey", "icareerhub", "aucegypt-uccd"], "confidence": "low"}
+  ],
+  "competitors": [
+    {"name": "Career 180", "strength": "Career counseling, learning content, job matching, and workshops in Egypt and regional markets.", "weakness": "Public retail B2C pricing was not verified in the research snapshot.", "source_ids": ["career180-startup-intros", "wamda-career180"], "pricing": "Unknown"},
+    {"name": "iCareer / BasharSoft", "strength": "University-facing virtual career-center, training, and coaching programs.", "weakness": "The snapshot does not verify a standalone consumer subscription price.", "source_ids": ["cfye-vcc", "icareerhub", "basharsoft-acquisition"], "pricing": "Subsidized/free for some enrolled-student programs; exact commercial terms unknown"},
+    {"name": "Wuzzuf / Forasna", "strength": "Local job-matching and recruiter distribution across Egypt.", "weakness": "Job matching is not the same as an individualized bilingual coaching workflow.", "source_ids": ["qureos-egypt-recruitment-guide", "basharsoft-acquisition"], "pricing": "Job-seeker basic access and employer pricing claims require independent product verification"},
+    {"name": "University Centers for Career Development", "strength": "Institutional trust, campus access, career guidance, and employability events.", "weakness": "Individual coaching capacity and service coverage per student were not quantified in the snapshot.", "source_ids": ["aucegypt-uccd", "ilo-project", "uccd-expo"], "pricing": "Free/subsidized for eligible students"},
+    {"name": "Qureos", "strength": "AI-assisted matching, resume feedback, and interview-oriented workflows across MENA.", "weakness": "Egypt-specific student coverage and pricing were not verified in the snapshot.", "source_ids": ["qureos-guide", "wamda-qureos"], "pricing": "Unknown"},
+    {"name": "Almentor", "strength": "Arabic-language learning content for career, business, soft skills, and AI literacy.", "weakness": "It is primarily a learning platform rather than a dedicated personalized career-coaching workflow.", "source_ids": ["almentor", "almentor-tracxn"], "pricing": "Subscription/pay-per-course; current Egypt student tier unknown"}
+  ],
+  "opportunities": [
+    {"text": "Validate a bilingual, Egypt-specific coaching workflow with Alexandria students before attempting broad market sizing.", "source_ids": ["alexandria-university", "ilo-graduate-survey", "aucegypt-uccd"], "confidence": "medium"},
+    {"text": "Explore institutional partnerships with universities, career centers, NGOs, and employability programs.", "source_ids": ["aucegypt-uccd", "ilo-project", "cfye-vcc"], "confidence": "medium"},
+    {"text": "Differentiate through local evidence, bilingual workflows, and measurable student progress rather than generic chat responses.", "source_ids": ["qureos-guide", "icareerhub", "almentor"], "confidence": "low"}
+  ],
+  "threats": [
+    {"text": "Students can access free university career services, job boards, and general-purpose AI tools.", "source_ids": ["aucegypt-uccd", "qureos-egypt-recruitment-guide", "basharsoft-acquisition"], "confidence": "medium"},
+    {"text": "Incumbent local platforms have recruiter relationships and distribution that a new product must earn.", "source_ids": ["basharsoft-acquisition", "qureos-egypt-recruitment-guide"], "confidence": "medium"},
+    {"text": "Student willingness to pay and recurring subscription economics were not verified and must be tested rather than assumed.", "source_ids": ["almentor", "career180-startup-intros"], "confidence": "low"}
+  ],
+  "sources": [
+    {"id": "capmas-higher-ed-2022-23", "title": "CAPMAS: 3.7 million students enrolled in higher education in 2022/2023", "publisher": "Egyptian Gazette / CAPMAS", "url": "https://egyptian-gazette.com/sports/capmas-3-7-mln-students-enrolled-in-higher-education-in-2022-2023/", "retrieved_on": "2026-08-15", "quality": "high"},
+    {"id": "sis-graduates-2022", "title": "CAPMAS: increase in higher-education graduates in 2022", "publisher": "State Information Service / CAPMAS", "url": "https://sis.gov.eg/Story/189498/CAPMAS-10.6%25-increase-in-number-of-higher-education-graduates-in-2022", "retrieved_on": "2026-08-15", "quality": "high"},
+    {"id": "sis-unemployment-2025", "title": "Egypt unemployment rate drops to 6.3% in 2025", "publisher": "State Information Service / CAPMAS", "url": "https://sis.gov.eg/Story/208573/Egypt-unemployment-rate-drops-to-6.3-in-2025-CAPMAS", "retrieved_on": "2026-08-15", "quality": "high"},
+    {"id": "ilo-graduate-survey", "title": "Tertiary Education Graduate Survey in Egypt 2021", "publisher": "International Labour Organization", "url": "https://www.ilo.org/resource/other-publication/tertiary-education-graduate-survey-egypt-2021-toward-achieving-graduates", "retrieved_on": "2026-08-15", "quality": "high"},
+    {"id": "alexandria-university", "title": "Alexandria University profile and enrollment reference", "publisher": "Alexandria University reference", "url": "https://en.wikipedia.org/wiki/Alexandria_University", "retrieved_on": "2026-08-15", "quality": "low"},
+    {"id": "aucegypt-uccd", "title": "Career development centers at Alexandria University", "publisher": "American University in Cairo", "url": "https://www.aucegypt.edu/news/stories/two-new-career-centers-alexandria-university", "retrieved_on": "2026-08-15", "quality": "high"},
+    {"id": "ilo-project", "title": "University Centers for Career Development project", "publisher": "International Labour Organization", "url": "https://www.ilo.org/projects/EGY-17-02-AUE", "retrieved_on": "2026-08-15", "quality": "high"},
+    {"id": "uccd-expo", "title": "UCCD virtual career expo", "publisher": "UCCD / vFairs", "url": "https://uccd.vfairs.com/", "retrieved_on": "2026-08-15", "quality": "medium"},
+    {"id": "career180-startup-intros", "title": "Career 180 company profile", "publisher": "Startup Intros", "url": "https://startupintros.com/startup/career-180", "retrieved_on": "2026-08-15", "quality": "medium"},
+    {"id": "wamda-career180", "title": "Career 180 regional expansion and funding", "publisher": "Wamda", "url": "https://wamda.com/2025/05/career-180-six-figure-funding-regional-expansion", "retrieved_on": "2026-08-15", "quality": "medium"},
+    {"id": "cfye-vcc", "title": "Virtual Career Centre project", "publisher": "Fund for Youth Employment", "url": "https://fundforyouthemployment.nl/project/virtual-career-centre-vcc/", "retrieved_on": "2026-08-15", "quality": "medium"},
+    {"id": "icareerhub", "title": "Talentex Academy programs", "publisher": "iCareer Hub", "url": "https://icareerhub.com/programs/talentex", "retrieved_on": "2026-08-15", "quality": "medium"},
+    {"id": "basharsoft-acquisition", "title": "BasharSoft acquires iCareer", "publisher": "Daba Finance", "url": "https://dabafinance.com/basharsoft-acquires-icareer-recruitment-egypt/", "retrieved_on": "2026-08-15", "quality": "medium"},
+    {"id": "qureos-egypt-recruitment-guide", "title": "Recruitment platforms in Egypt", "publisher": "Qureos", "url": "https://qureos.com/hiring-guide/recruitment-platforms-in-egypt", "retrieved_on": "2026-08-15", "quality": "medium"},
+    {"id": "qureos-guide", "title": "Qureos hiring and AI career platform guide", "publisher": "Qureos", "url": "https://qureos.com/hiring-guide/qureos-vs-bayt", "retrieved_on": "2026-08-15", "quality": "medium"},
+    {"id": "wamda-qureos", "title": "Qureos funding and MENA expansion", "publisher": "Wamda", "url": "https://wamda.com/2026/02/ai-hiring-platform-qureos-secures-5-million-to-scale-across-mena", "retrieved_on": "2026-08-15", "quality": "medium"},
+    {"id": "almentor", "title": "Almentor learning platform", "publisher": "Almentor", "url": "https://almentor.net/", "retrieved_on": "2026-08-15", "quality": "medium"},
+    {"id": "almentor-tracxn", "title": "Almentor company reference", "publisher": "Tracxn", "url": "https://tracxn.com/d/companies/almentor/__g_V83g-oVvF_Z-n5X25U9wS0hP3Q5qIqJgWlH-12aB8", "retrieved_on": "2026-08-15", "quality": "low"},
+    {"id": "pharos-university", "title": "Pharos University in Alexandria", "publisher": "Pharos University", "url": "https://www.pua.edu.eg/", "retrieved_on": "2026-08-15", "quality": "medium"},
+    {"id": "aastmt", "title": "Arab Academy for Science, Technology and Maritime Transport", "publisher": "AASTMT", "url": "https://aast.edu/", "retrieved_on": "2026-08-15", "quality": "medium"},
+    {"id": "ejust", "title": "Egypt-Japan University of Science and Technology", "publisher": "E-JUST", "url": "https://www.ejust.edu.eg/", "retrieved_on": "2026-08-15", "quality": "medium"}
+  ],
+  "numeric_claims": [
+    {"label": "Higher-education enrollment", "value": "3700000", "unit": "students", "currency": null, "geography": "Egypt", "period": "Academic year 2022/2023", "number_type": "source_reported", "source_ids": ["capmas-higher-ed-2022-23"], "methodology": null, "confidence": "high", "assumptions": []},
+    {"label": "Public universities and Al-Azhar share of higher-education enrollment", "value": "66.5", "unit": "%", "currency": null, "geography": "Egypt", "period": "Academic year 2022/2023", "number_type": "source_reported", "source_ids": ["capmas-higher-ed-2022-23"], "methodology": null, "confidence": "high", "assumptions": []},
+    {"label": "Higher-education graduates", "value": "738000", "unit": "graduates", "currency": null, "geography": "Egypt", "period": "2022", "number_type": "source_reported", "source_ids": ["sis-graduates-2022"], "methodology": null, "confidence": "high", "assumptions": []},
+    {"label": "National unemployment rate", "value": "6.3", "unit": "%", "currency": null, "geography": "Egypt", "period": "2025", "number_type": "source_reported", "source_ids": ["sis-unemployment-2025"], "methodology": null, "confidence": "high", "assumptions": []},
+    {"label": "Youth unemployment rate ages 15-29", "value": "13.2", "unit": "%", "currency": null, "geography": "Egypt", "period": "2025", "number_type": "source_reported", "source_ids": ["sis-unemployment-2025"], "methodology": null, "confidence": "high", "assumptions": []},
+    {"label": "Female youth unemployment rate ages 15-29", "value": "33.8", "unit": "%", "currency": null, "geography": "Egypt", "period": "2025", "number_type": "source_reported", "source_ids": ["sis-unemployment-2025"], "methodology": null, "confidence": "high", "assumptions": []},
+    {"label": "Educated youth unemployment rate", "value": "16.8", "unit": "%", "currency": null, "geography": "Egypt", "period": "2025", "number_type": "source_reported", "source_ids": ["sis-unemployment-2025"], "methodology": null, "confidence": "high", "assumptions": []},
+    {"label": "Surveyed tertiary graduate unemployment rate", "value": "41.8", "unit": "%", "currency": null, "geography": "Egypt surveyed cohorts", "period": "2021 survey published later", "number_type": "source_reported", "source_ids": ["ilo-graduate-survey"], "methodology": null, "confidence": "medium", "assumptions": ["This is a survey cohort result and should not be generalized to all Egyptian graduates without qualification."]},
+    {"label": "Tertiary graduates in jobs requiring below-university education", "value": "32.0", "unit": "%", "currency": null, "geography": "Egypt surveyed cohorts", "period": "ILO tertiary graduate survey", "number_type": "source_reported", "source_ids": ["ilo-graduate-survey"], "methodology": null, "confidence": "medium", "assumptions": ["Survey cohort result; not a national estimate."]}
+  ],
+  "missing_fields": ["verified Alexandria-specific student demand", "verified willingness to pay", "verified current competitor pricing", "validated conversion rate", "TAM/SAM/SOM", "causal evidence that an AI coach improves employment outcomes"],
+  "conflicts": ["Alexandria University enrollment figures vary by definition and source; use the source-specific figure and do not combine them."],
+  "assumptions": ["User-provided startup description and goals are context, not external evidence.", "Recommendations derived from this snapshot are hypotheses for validation, not verified market facts."]
+}

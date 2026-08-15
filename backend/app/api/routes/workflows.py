@@ -8,7 +8,7 @@ from app.core.config import get_settings
 from app.db.repositories import create_workflow_run
 from app.db.models import WorkflowRun
 from app.services.startup_service import StartupNotFoundError, startup_service
-from app.services.workflow_service import run_ad_action_plan, run_marketing_plan, run_research, run_swot
+from app.services.workflow_service import run_ad_action_plan, run_competitor_analysis, run_marketing_plan, run_research, run_swot
 
 router = APIRouter(prefix="/startups", tags=["Workflows"])
 
@@ -50,6 +50,11 @@ async def execute_workflow(startup_id: int, feature: str, fn, db: Session):
 @router.post("/{startup_id}/market-research/runs")
 async def research_run(startup_id: int, db: Session = Depends(database_session)):
     return await execute_workflow(startup_id, "market_research", run_research, db)
+
+
+@router.post("/{startup_id}/competitor-analysis/runs")
+async def competitor_run(startup_id: int, db: Session = Depends(database_session)):
+    return await execute_workflow(startup_id, "competitor_analysis", run_competitor_analysis, db)
 
 
 @router.post("/{startup_id}/swot/runs")

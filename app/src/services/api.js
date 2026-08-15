@@ -45,6 +45,22 @@ export function startMarketResearchRun(startupId) {
   return request(`/startups/${startupId}/market-research/runs`, { method: "POST" });
 }
 
+export function startCompetitorAnalysisRun(startupId) {
+  return request(`/startups/${startupId}/competitor-analysis/runs`, { method: "POST" });
+}
+
+export function startSwotRun(startupId) {
+  return request(`/startups/${startupId}/swot/runs`, { method: "POST" });
+}
+
+export function startMarketingPlanRun(startupId) {
+  return request(`/startups/${startupId}/marketing-plan/runs`, { method: "POST" });
+}
+
+export function startActionPlanRun(startupId) {
+  return request(`/startups/${startupId}/action-plans/runs`, { method: "POST" });
+}
+
 export function createMarketingPlan(payload) {
   return request("/marketing-plan", { method: "POST", body: JSON.stringify(payload) });
 }

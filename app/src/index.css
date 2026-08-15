@@ -94,4 +94,22 @@ textarea { resize: vertical; }
 .warning { margin: 18px 0 0; padding: 12px 14px; border-radius: 10px; color: #765419; background: #fff5dc; font-size: 0.9rem; }
 .research-two-column { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 .data-list { margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.7; }
+.swot-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+.swot-column { box-shadow: none; }
+.swot-column h2 { text-transform: capitalize; }
+.swot-item { padding: 12px 0; border-top: 1px solid var(--line); }
+.swot-item p { line-height: 1.45; }
+.swot-item span, .task-row span, .channel-meta span, .kpi-row span { color: var(--muted); font-size: 0.78rem; }
+.competitor-row, .channel-row, .task-row, .kpi-row { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 16px 0; border-top: 1px solid var(--line); }
+.row-title { display: flex; align-items: center; gap: 10px; }
+.row-title h3 { margin-bottom: 4px; }
+.competitor-row p, .channel-row p { margin-bottom: 5px; line-height: 1.45; }
+.competitor-meta, .channel-meta { display: grid; min-width: 180px; gap: 6px; text-align: right; }
+.channel-meta strong { font-size: 0.82rem; }
+.kpi-row { align-items: flex-start; }
+.kpi-row { display: grid; grid-template-columns: 1fr 2fr auto; }
+.kpi-row em { color: var(--warning); font-style: normal; font-weight: 750; }
+.task-row strong { color: var(--accent-dark); font-size: 0.82rem; text-transform: uppercase; }
+@media (max-width: 980px) { .swot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 680px) { .swot-grid { grid-template-columns: 1fr; } .competitor-row, .channel-row, .task-row { align-items: flex-start; flex-direction: column; } .competitor-meta, .channel-meta { min-width: 0; text-align: left; } .kpi-row { grid-template-columns: 1fr; gap: 6px; } }
 @media (max-width: 760px) { .research-header { align-items: flex-start; flex-direction: column; } .research-two-column { grid-template-columns: 1fr; } .claim-row { align-items: flex-start; flex-direction: column; } .claim-meta { justify-content: flex-start; } }
